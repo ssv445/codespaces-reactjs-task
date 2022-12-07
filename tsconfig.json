@@ -13,9 +13,9 @@
         "jsx": "react",
         "moduleResolution": "node",
         "rootDir": "src",
-        "noImplicitReturns": true,
-        "noImplicitThis": true,
-        "noImplicitAny": true,
+        "noImplicitReturns": false,
+        "noImplicitThis": false,
+        "noImplicitAny": false,
         "strictNullChecks": true
     },
     "exclude": [
