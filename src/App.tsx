@@ -39,11 +39,10 @@ function ProductsPage() {
   const limit = 6;
   const selectedCategory = searchParams.get('category') || 'ALL';
   const productId = parseInt(searchParams.get('productId') || '0') ;
-  // const [products, setProducts] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, limit: 6, page: 1 });
   const products = useSelector((state:IStoreState) => state.categorized[selectedCategory]?.pages[page] ?? []);
   const dispatch = useDispatch();
-  console.log('products list now is ', selectedCategory, page, products);
+  // console.log('products list now is ', selectedCategory, page, products);
 
   function doProductSelect(productId) {
     let newSearchParams = searchParams;
@@ -57,26 +56,29 @@ function ProductsPage() {
     setSearchParams(newSearchParams);
   }
 
-
+  const shouldFetchProduct = !products.length;
   useEffect(() => {
     let skip = (page - 1) * limit;
 
-    let url = 'https://dummyjson.com/products/'
+    let url = 'https://dummyjson.com/products'
     if ( selectedCategory !== 'ALL') {
       url = 'https://dummyjson.com/products/category/' + selectedCategory;
     }
 
+    if (shouldFetchProduct) {
+    console.log('fetching product list page',page,selectedCategory, products);
+
     fetch(`${url}?skip=${skip}&limit=${limit}`)
       .then(response => response.json())
       .then(data => {
-        console.log(data);
+        //sometime page
         dispatch({
           type: 'ADD_CATEGORY_PRODUCT_PAGE',
           category: selectedCategory,
           products: data.products,
           total: data.total,
           per_page: data.limit,
-          page:page
+          page: page
         });
 
         setPagination({
@@ -84,10 +86,9 @@ function ProductsPage() {
           limit: data.limit,
           page: (data.skip / data.limit) + 1
         })
-
-
       });
-  }, [page, selectedCategory, dispatch]);
+    }
+  }, [page, selectedCategory, dispatch,shouldFetchProduct]);
 
    const productModal = productId ?  <ProductModal productId={productId}/> : <div></div>
   //const productModal = productId ?  <div>{productId}</div> : <div></div>
@@ -101,7 +102,7 @@ function ProductsPage() {
         <Content>
       <Row gutter={8}>
       {products.map((product:IProduct) => (
-        <Col span={8} onClick={() => { doProductSelect(product.id);  return false; }} >
+        <Col key={product.id} span={8} onClick={() => { doProductSelect(product.id);  return false; }} >
           <Product key={product.id} product={product}  />
         </Col>
       ))}
@@ -111,8 +112,7 @@ function ProductsPage() {
           <Pagination onChange={(page) => doSetPage(page)} defaultCurrent={pagination.page}
             total={pagination.total}
             showSizeChanger={false}       defaultPageSize={pagination.limit}
-
-            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} items`}
+            showTotal={(total, range) => `Total ${total} items`}
   />
       </Row>
         {productModal}
@@ -128,21 +128,26 @@ function Categories({ selected = null }: { selected: string | null }) {
   const categories: string[] = useSelector((state:IStoreState) => state.categories);
   const dispatch = useDispatch();
   //console.log('categories list now is ', categories);
+  const shouldFetchCategories = !categories.length;
 
   useEffect(() => {
-    fetch(`https://dummyjson.com/products/categories`)
-      .then(response => response.json())
-      .then(data => {
-        dispatch({
-          type: 'SET_CATEGORIES',
-          categories: ['ALL', ...data]
+    if (shouldFetchCategories) {
+      console.log('fetching categories');
+      fetch(`https://dummyjson.com/products/categories`)
+        .then(response => response.json())
+        .then(data => {
+          dispatch({
+            type: 'SET_CATEGORIES',
+            categories: ['ALL', ...data]
+          });
         });
-      });
-  }, [dispatch]);
+    }
+  }, [shouldFetchCategories,dispatch]);
 
    function doCategorySelect(category: string) {
     let newSearchParams = searchParams;
-    newSearchParams.set('category',category)
+     newSearchParams.set('category', category)
+     newSearchParams.set('page', '1');// reset to first page
     setSearchParams(newSearchParams);
   }
   return (
@@ -175,18 +180,26 @@ function Product({ product }: { product: IProduct }) {
 
 function ProductModal({ productId }: { productId: number }) {
   const [open, setOpen] = useState(true);
-  const [product, setProduct] = useState<IProduct>();
-
+  // const [product, setProduct] = useState<IProduct>();
+  const product = useSelector((state:IStoreState) => state.products[productId] ?? null);
+  const dispatch = useDispatch();
+  // console.log('checking product info',productId, product);
+  const shouldFetchProduct = !product || product.id !== productId;
   useEffect(() => {
-    fetch(`https://dummyjson.com/products/${productId}`)
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-        setProduct(data);
-      });
-        setOpen(true);
-
-  }, [productId]);
+    if (shouldFetchProduct) {
+      console.log('>> requesting product info',productId, product);
+      fetch(`https://dummyjson.com/products/${productId}`)
+        .then(response => response.json())
+        .then(data => {
+          dispatch({
+            type: 'ADD_PRODUCT',
+            product: data
+          });
+        });
+    }
+    //open the modal
+    setOpen(true);
+  }, [productId, shouldFetchProduct,dispatch]);
 
   let productOrErrorCard = <div>Error</div>;
 

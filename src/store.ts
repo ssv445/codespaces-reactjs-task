@@ -50,7 +50,7 @@ function productReducer(state:IStoreState = initialState, action) {
               newState.products[product.id] = product;
           });
 
-          console.log('In action ADD_CATEGORY_PRODUCT_PAGE', action, newState);
+          //console.log('In action ADD_CATEGORY_PRODUCT_PAGE', action, newState);
 
           return newState;
 
