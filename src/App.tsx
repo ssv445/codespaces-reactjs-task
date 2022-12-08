@@ -11,7 +11,8 @@ import {
 } from "react-router-dom";
 import {  Modal } from 'antd';
 import { useSearchParams } from "react-router-dom";
-
+import { useSelector, useDispatch, Provider } from 'react-redux'
+import {IStoreState, store} from './store';
 
 const { Header, Footer, Sider, Content } = Layout;
 
@@ -38,8 +39,11 @@ function ProductsPage() {
   const limit = 6;
   const selectedCategory = searchParams.get('category') || 'ALL';
   const productId = parseInt(searchParams.get('productId') || '0') ;
-  const [products, setProducts] = useState([]);
+  // const [products, setProducts] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, limit: 6, page: 1 });
+  const products = useSelector((state:IStoreState) => state.categorized[selectedCategory]?.pages[page] ?? []);
+  const dispatch = useDispatch();
+  console.log('products list now is ', selectedCategory, page, products);
 
   function doProductSelect(productId) {
     let newSearchParams = searchParams;
@@ -58,7 +62,7 @@ function ProductsPage() {
     let skip = (page - 1) * limit;
 
     let url = 'https://dummyjson.com/products/'
-    if (selectedCategory && selectedCategory !== 'ALL') {
+    if ( selectedCategory !== 'ALL') {
       url = 'https://dummyjson.com/products/category/' + selectedCategory;
     }
 
@@ -66,7 +70,15 @@ function ProductsPage() {
       .then(response => response.json())
       .then(data => {
         console.log(data);
-        setProducts(data.products);
+        dispatch({
+          type: 'ADD_CATEGORY_PRODUCT_PAGE',
+          category: selectedCategory,
+          products: data.products,
+          total: data.total,
+          per_page: data.limit,
+          page:page
+        });
+
         setPagination({
           total: data.total,
           limit: data.limit,
@@ -75,7 +87,7 @@ function ProductsPage() {
 
 
       });
-  }, [page, selectedCategory]);
+  }, [page, selectedCategory, dispatch]);
 
    const productModal = productId ?  <ProductModal productId={productId}/> : <div></div>
   //const productModal = productId ?  <div>{productId}</div> : <div></div>
@@ -112,15 +124,21 @@ function ProductsPage() {
 
 function Categories({ selected = null }: { selected: string | null }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [categories, setCategories] = useState<string[]>([]);
+  // const [categories, setCategories] = useState<string[]>([]);
+  const categories: string[] = useSelector((state:IStoreState) => state.categories);
+  const dispatch = useDispatch();
+  //console.log('categories list now is ', categories);
 
   useEffect(() => {
     fetch(`https://dummyjson.com/products/categories`)
       .then(response => response.json())
       .then(data => {
-        setCategories(['ALL', ...data]);
+        dispatch({
+          type: 'SET_CATEGORIES',
+          categories: ['ALL', ...data]
+        });
       });
-  }, []);
+  }, [dispatch]);
 
    function doCategorySelect(category: string) {
     let newSearchParams = searchParams;
@@ -207,14 +225,16 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <Layout>
+    <Provider store={store}>
+      <Layout>
       <Header>Header</Header>
       <Layout>
         <RouterProvider router={router} />
 
         </Layout>
       <Footer>Footer</Footer>
-    </Layout>
+      </Layout>
+    </Provider>
   );
 }
 
