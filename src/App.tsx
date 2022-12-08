@@ -56,7 +56,7 @@ function ProductsPage() {
     setSearchParams(newSearchParams);
   }
 
-  const shouldFetchProduct = !products.length;
+  const shouldFetchProduct = products.length === 0 ;
   useEffect(() => {
     let skip = (page - 1) * limit;
 
@@ -128,7 +128,7 @@ function Categories({ selected = null }: { selected: string | null }) {
   const categories: string[] = useSelector((state:IStoreState) => state.categories);
   const dispatch = useDispatch();
   //console.log('categories list now is ', categories);
-  const shouldFetchCategories = !categories.length;
+  const shouldFetchCategories = categories.length === 0;
 
   useEffect(() => {
     if (shouldFetchCategories) {
