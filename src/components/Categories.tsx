@@ -41,7 +41,7 @@ export function Categories({ selected = null }: { selected: string | null; }) {
                 // onSelect need to change selected category
                 renderItem={(category) => (
                     <List.Item>
-                        <Link key={category} to={`/category/${category}`}>
+                        <Link key={category} to={category !== 'ALL' ? `/category/${category}` : '/'}>
                             {category === selected ? (
                                 <strong>{category}</strong>
                             ) : (
