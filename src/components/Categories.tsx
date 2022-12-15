@@ -14,7 +14,6 @@ export function Categories({ selected = null }: { selected: string | null }) {
 
   useEffect(() => {
     if (shouldFetchCategories) {
-      console.log('fetching categories');
       fetch(`https://dummyjson.com/products/categories`)
         .then((response) => response.json())
         .then((data) => {
