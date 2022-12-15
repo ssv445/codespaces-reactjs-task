@@ -33,23 +33,21 @@ export function Categories({ selected = null }: { selected: string | null; }) {
     //   setSearchParams(newSearchParams);
     // }
     return (
-        <div>
-            <List
-                header={<h1>Filter By Category</h1>}
-                bordered
-                dataSource={categories}
-                // onSelect need to change selected category
-                renderItem={(category) => (
-                    <List.Item>
-                        <Link key={category} to={category !== 'ALL' ? `/category/${category}` : '/'}>
-                            {category === selected ? (
-                                <strong>{category}</strong>
-                            ) : (
-                                <span>{category}</span>
-                            )}
-                        </Link>
-                    </List.Item>
-                )} />
-        </div>
+        <List
+            header={<h1>Filter By Category</h1>}
+            bordered
+            dataSource={categories}
+            // onSelect need to change selected category
+            renderItem={(category) => (
+                <List.Item>
+                    <Link key={category} to={category !== 'ALL' ? `/category/${category}` : '/'}>
+                        {category === selected ? (
+                            <strong>{category}</strong>
+                        ) : (
+                            <span>{category}</span>
+                        )}
+                    </Link>
+                </List.Item>
+            )} />
     );
 }
