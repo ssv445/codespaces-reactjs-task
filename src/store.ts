@@ -20,7 +20,6 @@ function productReducer(state: IStoreState = initialState, action) {
     case 'ADD_PRODUCT':
       newState = { ...state };
       newState.products[action.product.id] = action.product;
-      console.log('store: product set');
       return newState;
 
     case 'ADD_CATEGORY_PRODUCT_PAGE':
@@ -42,17 +41,12 @@ function productReducer(state: IStoreState = initialState, action) {
       action.products.forEach((product) => {
         newState.products[product.id] = product;
       });
-
-      //console.log('In action ADD_CATEGORY_PRODUCT_PAGE', action, newState);
-      console.log('store: page set');
       return newState;
 
     case 'SET_CATEGORIES':
       newState = { ...state };
       newState.categories = action.categories;
       //update all data
-      //console.log(action,newState);
-      console.log('store: categories set');
       return newState;
 
     default:
