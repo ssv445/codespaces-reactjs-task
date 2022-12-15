@@ -1,13 +1,8 @@
 import { createStore } from 'redux';
-import { IProduct } from './App';
+import { IProduct } from "./interface/IProduct";
+import { IStoreState } from './interface/IStoreState';
 
-type ICategoryPage = { total: number; per_page: number; pages: IProduct[] };
-
-type IStoreState = {
-  products: IProduct[];
-  categorized: ICategoryPage[];
-  categories: string[];
-};
+export type ICategoryPage = { total: number; per_page: number; pages: IProduct[] };
 
 const initialState: IStoreState = {
   products: [], // product_id -> porduct
@@ -63,4 +58,4 @@ function productReducer(state: IStoreState = initialState, action) {
 
 const store = createStore(productReducer);
 
-export { IStoreState, store };
+export { store };
