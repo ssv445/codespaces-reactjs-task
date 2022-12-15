@@ -1,10 +1,6 @@
 import * as React from 'react';
 import { Layout } from 'antd';
-import {
-  useLocation,
-  Routes,
-  Route,
-} from 'react-router-dom';
+import { useLocation, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import './App.css';
@@ -13,8 +9,6 @@ import { ProductModal } from './pages/ProductModal';
 import { NoMatch } from './pages/NoMatch';
 import { ProductsPage } from './pages/ProductsPage';
 import { CategoryPage } from './pages/CategoryPage';
-
-
 
 function App() {
   let location = useLocation();
