@@ -3,14 +3,12 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Card, Col, Row, List, Pagination, Modal, Layout } from 'antd';
 import {
-
   Link,
   useLocation,
   useParams,
   useSearchParams,
   Routes,
   Route,
-  Navigate,
   useNavigate,
 } from 'react-router-dom';
 import { useSelector, useDispatch, Provider } from 'react-redux';
@@ -43,7 +41,11 @@ function CategoryPage() {
   return <ProductsPage selectedCategory={categoryId}></ProductsPage>;
 }
 
-function ProductsPage({ selectedCategory = 'ALL' }: { selectedCategory?: string }) {
+function ProductsPage({
+  selectedCategory = 'ALL',
+}: {
+  selectedCategory?: string;
+}) {
   let location = useLocation();
   console.log('selectedCategory:', selectedCategory);
 
@@ -111,8 +113,7 @@ function ProductsPage({ selectedCategory = 'ALL' }: { selectedCategory?: string 
                 to={`/products/${product.id}`}
                 state={{ backgroundLocation: location }}
               >
-                <Product key={product.id} product={product}
-                />
+                <Product key={product.id} product={product} />
               </Link>
             </Col>
           ))}
@@ -168,12 +169,8 @@ function Categories({ selected = null }: { selected: string | null }) {
         dataSource={categories}
         // onSelect need to change selected category
         renderItem={(category) => (
-          <List.Item
-          >
-            <Link
-              key={category}
-              to={`/category/${category}`}
-            >
+          <List.Item>
+            <Link key={category} to={`/category/${category}`}>
               {category === selected ? (
                 <strong>{category}</strong>
               ) : (
@@ -251,14 +248,16 @@ function ProductModal() {
     setOpen(true);
   }, [productId]);
 
-  return <Modal
-    centered
-    open={open}
-    onOk={() => closeModal()}
-    onCancel={() => closeModal()}
-  >
-    <ProductDetails></ProductDetails>
-  </Modal>;
+  return (
+    <Modal
+      centered
+      open={open}
+      onOk={() => closeModal()}
+      onCancel={() => closeModal()}
+    >
+      <ProductDetails></ProductDetails>
+    </Modal>
+  );
 }
 
 function NoMatch() {
