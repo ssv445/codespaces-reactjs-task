@@ -1,16 +1,13 @@
 import React from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
-import { Layout } from 'antd';
+
+import { useEffect, useState } from 'react';
 import './App.css';
-import { Card,  Col, Row, List } from 'antd';
-import {Pagination} from 'antd'
+import { Card,  Col, Row, List, Pagination,Modal,Layout } from 'antd';
 import {
   createBrowserRouter,
   RouterProvider,
+  useSearchParams
 } from "react-router-dom";
-import {  Modal } from 'antd';
-import { useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch, Provider } from 'react-redux'
 import {IStoreState, store} from './store';
 
@@ -66,7 +63,7 @@ function ProductsPage() {
     }
 
     if (shouldFetchProduct) {
-    console.log('fetching product list page',page,selectedCategory, products);
+    // console.log('fetching product list page',page,selectedCategory, products);
 
     fetch(`${url}?skip=${skip}&limit=${limit}`)
       .then(response => response.json())
@@ -187,7 +184,7 @@ function ProductModal({ productId }: { productId: number }) {
   const shouldFetchProduct = !product || product.id !== productId;
   useEffect(() => {
     if (shouldFetchProduct) {
-      console.log('>> requesting product info',productId, product);
+      // console.log('>> requesting product info',productId, product);
       fetch(`https://dummyjson.com/products/${productId}`)
         .then(response => response.json())
         .then(data => {
