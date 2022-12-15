@@ -1,11 +1,7 @@
 import { createStore } from 'redux';
 import { IProduct } from './App';
 
-type ICategoryPage = {
-  total: number;
-  per_page: number;
-  pages: IProduct[];
-};
+type ICategoryPage = { total: number; per_page: number; pages: IProduct[] };
 
 type IStoreState = {
   products: IProduct[];

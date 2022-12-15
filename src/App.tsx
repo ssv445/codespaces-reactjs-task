@@ -1,17 +1,23 @@
-import React from 'react';
+import * as React from 'react';
 
 import { useEffect, useState } from 'react';
-import './App.css';
 import { Card, Col, Row, List, Pagination, Modal, Layout } from 'antd';
 import {
-  createBrowserRouter,
-  RouterProvider,
+
+  Link,
+  useLocation,
+  useParams,
   useSearchParams,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
 } from 'react-router-dom';
 import { useSelector, useDispatch, Provider } from 'react-redux';
 import { IStoreState, store } from './store';
+import './App.css';
 
-const { Header, Footer, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 export interface IProduct {
   id: number;
@@ -30,25 +36,27 @@ export interface IPagination {
   page: number;
 }
 
-function ProductsPage() {
+function CategoryPage() {
+  let { categoryId } = useParams<'categoryId'>();
+  console.log('categoryId:', categoryId);
+  // let category = categoryId.toString();
+  return <ProductsPage selectedCategory={categoryId}></ProductsPage>;
+}
+
+function ProductsPage({ selectedCategory = 'ALL' }: { selectedCategory?: string }) {
+  let location = useLocation();
+  console.log('selectedCategory:', selectedCategory);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get('page') || '1');
   const limit = 6;
-  const selectedCategory = searchParams.get('category') || 'ALL';
-  const productId = parseInt(searchParams.get('productId') || '0');
+
   const [pagination, setPagination] = useState({ total: 0, limit: 6, page: 1 });
   const products = useSelector(
     (state: IStoreState) =>
       state.categorized[selectedCategory]?.pages[page] ?? []
   );
   const dispatch = useDispatch();
-  // console.log('products list now is ', selectedCategory, page, products);
-
-  function doProductSelect(productId) {
-    let newSearchParams = searchParams;
-    newSearchParams.set('productId', productId);
-    setSearchParams(newSearchParams);
-  }
 
   function doSetPage(pageNo) {
     let newSearchParams = searchParams;
@@ -56,16 +64,15 @@ function ProductsPage() {
     setSearchParams(newSearchParams);
   }
 
-  const shouldFetchProduct = products.length === 0;
+  const shouldFetchProducts = products.length === 0;
   useEffect(() => {
     let skip = (page - 1) * limit;
-
     let url = 'https://dummyjson.com/products';
     if (selectedCategory !== 'ALL') {
       url = 'https://dummyjson.com/products/category/' + selectedCategory;
     }
 
-    if (shouldFetchProduct) {
+    if (shouldFetchProducts) {
       // console.log('fetching product list page',page,selectedCategory, products);
 
       fetch(`${url}?skip=${skip}&limit=${limit}`)
@@ -88,14 +95,7 @@ function ProductsPage() {
           });
         });
     }
-  }, [page, selectedCategory, dispatch, shouldFetchProduct]);
-
-  const productModal = productId ? (
-    <ProductModal productId={productId} />
-  ) : (
-    <div></div>
-  );
-  //const productModal = productId ?  <div>{productId}</div> : <div></div>
+  }, [page, selectedCategory, dispatch, shouldFetchProducts]);
 
   return (
     <>
@@ -105,15 +105,15 @@ function ProductsPage() {
       <Content>
         <Row gutter={8}>
           {products.map((product: IProduct) => (
-            <Col
-              key={product.id}
-              span={8}
-              onClick={() => {
-                doProductSelect(product.id);
-                return false;
-              }}
-            >
-              <Product key={product.id} product={product} />
+            <Col key={product.id} span={8}>
+              <Link
+                key={product.id}
+                to={`/products/${product.id}`}
+                state={{ backgroundLocation: location }}
+              >
+                <Product key={product.id} product={product}
+                />
+              </Link>
             </Col>
           ))}
         </Row>
@@ -128,20 +128,16 @@ function ProductsPage() {
             showTotal={(total, range) => `Total ${total} items`}
           />
         </Row>
-        {productModal}
       </Content>
     </>
   );
 }
 
 function Categories({ selected = null }: { selected: string | null }) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  // const [categories, setCategories] = useState<string[]>([]);
   const categories: string[] = useSelector(
     (state: IStoreState) => state.categories
   );
   const dispatch = useDispatch();
-  //console.log('categories list now is ', categories);
   const shouldFetchCategories = categories.length === 0;
 
   useEffect(() => {
@@ -158,12 +154,12 @@ function Categories({ selected = null }: { selected: string | null }) {
     }
   }, [shouldFetchCategories, dispatch]);
 
-  function doCategorySelect(category: string) {
-    let newSearchParams = searchParams;
-    newSearchParams.set('category', category);
-    newSearchParams.set('page', '1'); // reset to first page
-    setSearchParams(newSearchParams);
-  }
+  // function doCategorySelect(category: string) {
+  //   let newSearchParams = searchParams;
+  //   newSearchParams.set('category', category);
+  //   newSearchParams.set('page', '1'); // reset to first page
+  //   setSearchParams(newSearchParams);
+  // }
   return (
     <div>
       <List
@@ -173,16 +169,17 @@ function Categories({ selected = null }: { selected: string | null }) {
         // onSelect need to change selected category
         renderItem={(category) => (
           <List.Item
-            onClick={() => {
-              doCategorySelect(category);
-              return false;
-            }}
           >
-            {category === selected ? (
-              <strong>{category}</strong>
-            ) : (
-              <>{category}</>
-            )}
+            <Link
+              key={category}
+              to={`/category/${category}`}
+            >
+              {category === selected ? (
+                <strong>{category}</strong>
+              ) : (
+                <>{category}</>
+              )}
+            </Link>
           </List.Item>
         )}
       />
@@ -203,18 +200,16 @@ function Product({ product }: { product: IProduct }) {
   );
 }
 
-function ProductModal({ productId }: { productId: number }) {
-  const [open, setOpen] = useState(true);
-  // const [product, setProduct] = useState<IProduct>();
-  const product = useSelector(
-    (state: IStoreState) => state.products[productId] ?? null
+function ProductDetails() {
+  let { productId } = useParams<'productId'>();
+  const product = useSelector((state: IStoreState) =>
+    productId ? state.products[productId] ?? null : null
   );
+
   const dispatch = useDispatch();
-  // console.log('checking product info',productId, product);
   const shouldFetchProduct = !product || product.id !== productId;
   useEffect(() => {
     if (shouldFetchProduct) {
-      // console.log('>> requesting product info',productId, product);
       fetch(`https://dummyjson.com/products/${productId}`)
         .then((response) => response.json())
         .then((data) => {
@@ -224,57 +219,80 @@ function ProductModal({ productId }: { productId: number }) {
           });
         });
     }
-    //open the modal
-    setOpen(true);
   }, [productId, shouldFetchProduct, dispatch]);
 
-  let productOrErrorCard = <div>Error</div>;
-
-  if (product) {
-    productOrErrorCard = (
-      <Card
-        hoverable
-        cover={<img height="240" alt={product.title} src={product.thumbnail} />}
-      >
-        <p>{product.title} </p>
-        <p>{product.description} </p>
-        <p>${product.price}</p>
-        <p>
-          {product.brand} | {product.stock}
-        </p>
-      </Card>
-    );
+  if (!product) {
+    return <div>Product Not Found</div>;
   }
   return (
-    <>
-      <Modal
-        centered
-        open={open}
-        onOk={() => setOpen(false)}
-        onCancel={() => setOpen(false)}
-      >
-        {productOrErrorCard}
-      </Modal>
-    </>
+    <Card
+      hoverable
+      cover={<img height="240" alt={product.title} src={product.thumbnail} />}
+    >
+      <p>{product.title} </p>
+      <p>{product.description} </p>
+      <p>${product.price}</p>
+      <p>
+        {product.brand} | {product.stock}
+      </p>
+    </Card>
+  );
+}
+function ProductModal() {
+  let navigate = useNavigate();
+  const [open, setOpen] = useState(true);
+  let { productId } = useParams<'productId'>();
+
+  function closeModal() {
+    setOpen(false);
+    navigate(-1);
+  }
+  useEffect(() => {
+    setOpen(true);
+  }, [productId]);
+
+  return <Modal
+    centered
+    open={open}
+    onOk={() => closeModal()}
+    onCancel={() => closeModal()}
+  >
+    <ProductDetails></ProductDetails>
+  </Modal>;
+}
+
+function NoMatch() {
+  return (
+    <div>
+      <h2>Nothing to see here!</h2>
+      <p>
+        <Link to="/">Go to the home </Link>
+      </p>
+    </div>
   );
 }
 
-const router = createBrowserRouter([
-  {
-    path: '/*',
-    element: <ProductsPage />,
-  },
-]);
-
 function App() {
+  let location = useLocation();
+  let state = location.state as { backgroundLocation?: Location };
+
   return (
     <Provider store={store}>
       <Layout>
-        <Header>Header</Header>
-        <Layout>
-          <RouterProvider router={router} />
-        </Layout>
-        <Footer>Footer</Footer>
+        <Routes location={state?.backgroundLocation || location}>
+          <Route path="/">
+            <Route index element={<ProductsPage />} />
+            <Route path="/category/:categoryId" element={<CategoryPage />} />
+            <Route path="/products/:productId" element={<ProductDetails />} />
+            <Route path="*" element={<NoMatch />} />
+          </Route>
+        </Routes>
+
+        {state?.backgroundLocation && (
+          <Routes>
+            <Route path="/products/:productId" element={<ProductModal />} />
+          </Routes>
+        )}
       </Layout>
     </Provider>
   );
