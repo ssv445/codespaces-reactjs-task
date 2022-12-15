@@ -27,15 +27,27 @@ export function ProductsPage({
     const limit = 6;
 
     const [pagination, setPagination] = useState({ total: 0, limit: 6, page: 1 });
+    const categoryData = useSelector(
+        (state: IStoreState) => state.categorized[selectedCategory] ?? []
+    );
     const products = useSelector(
         (state: IStoreState) => state.categorized[selectedCategory]?.pages[page] ?? []
     );
     const dispatch = useDispatch();
 
-    function doSetPage(pageNo) {
+    function doSetPageInSearchParams(pageNo) {
         let newSearchParams = searchParams;
         newSearchParams.set('page', pageNo);
         setSearchParams(newSearchParams);
+    }
+
+    function syncPaginationData({ total, limit, page }) {
+        console.log('pag in pagination', page);
+        setPagination({
+            total: total,
+            limit: limit,
+            page: page,
+        });
     }
 
     const shouldFetchProducts = products.length === 0;
@@ -60,15 +72,16 @@ export function ProductsPage({
                         per_page: data.limit,
                         page: page,
                     });
-
-                    setPagination({
+                    syncPaginationData({
                         total: data.total,
                         limit: data.limit,
-                        page: data.skip / data.limit + 1,
+                        page: (data.skip / data.limit) + 1,
                     });
                 });
+        } else {
+            syncPaginationData(categoryData);
         }
-    }, [page, selectedCategory, dispatch, shouldFetchProducts]);
+    }, [page, selectedCategory, dispatch, shouldFetchProducts, categoryData]);
 
     return (
         <>
@@ -90,10 +103,9 @@ export function ProductsPage({
                     ))}
                 </Row>
                 <Row>
-                    {/* onChange=PENDING */}
                     <Pagination
-                        onChange={(page) => doSetPage(page)}
-                        defaultCurrent={pagination.page}
+                        onChange={(page) => doSetPageInSearchParams(page)}
+                        current={pagination.page | 1}
                         total={pagination.total}
                         showSizeChanger={false}
                         defaultPageSize={pagination.limit}
