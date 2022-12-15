@@ -45,7 +45,7 @@ export function Categories({ selected = null }: { selected: string | null; }) {
                             {category === selected ? (
                                 <strong>{category}</strong>
                             ) : (
-                                <>{category}</>
+                                <span>{category}</span>
                             )}
                         </Link>
                     </List.Item>
