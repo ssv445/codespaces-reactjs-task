@@ -85,19 +85,28 @@ export function ProductsPage({
 
     return (
         <>
-            <Sider theme="light">
+            <Sider theme="light" style={{
+                overflow: 'auto',
+                height: '100vh',
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                bottom: 0,
+            }}>
                 <Categories selected={selectedCategory}></Categories>
             </Sider>
-            <Content>
-                <Row gutter={8}>
+            <Content style={{ marginLeft: 200 }}>
+                <Row  >
                     {products.map((product: IProduct) => (
                         <Col key={product.id} span={8}>
                             <Link
                                 key={product.id}
                                 to={`/products/${product.id}`}
                                 state={{ backgroundLocation: location }}
+
                             >
-                                <Product key={product.id} product={product} />
+
+                                {<Product key={product.id} product={product} />}
                             </Link>
                         </Col>
                     ))}
