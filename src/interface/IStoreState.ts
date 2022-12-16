@@ -1,5 +1,5 @@
 import { IProduct } from './IProduct';
-import { ICategoryPage } from '../store';
+import { ICategoryPage } from "./ICategoryPage";
 
 export type IStoreState = {
   products: IProduct[];

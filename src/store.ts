@@ -1,12 +1,5 @@
 import { createStore } from 'redux';
-import { IProduct } from './interface/IProduct';
 import { IStoreState } from './interface/IStoreState';
-
-export type ICategoryPage = {
-  total: number;
-  per_page: number;
-  pages: IProduct[];
-};
 
 const initialState: IStoreState = {
   products: [], // product_id -> porduct
