@@ -21,7 +21,7 @@ services:
         # Use -bullseye variants on local arm64/Apple Silicon.
         VARIANT: 14-bullseye
 
-    container_name: nodejs_api
+    # container_name: nodejs_api
     volumes:
       - ..:/workspace:delegated
       - ~/.ssh:/home/node/.ssh:ro
