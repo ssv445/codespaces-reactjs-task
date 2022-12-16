@@ -21,12 +21,13 @@ function productReducer(state: IStoreState = initialState, action) {
       if (newState.categorized[action.category] === undefined) {
         newState.categorized[action.category] = {
           total: 0,
-          per_page: 0,
+          limit: 0,
           pages: [],
+          page: 1,
         };
       }
       newState.categorized[action.category].total = action.total;
-      newState.categorized[action.category].per_page = action.per_page;
+      newState.categorized[action.category].limit = action.limit;
       newState.categorized[action.category].pages[action.page] =
         action.products;
 

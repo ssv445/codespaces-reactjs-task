@@ -24,7 +24,7 @@ export function ProductsPage({
   const page = parseInt(searchParams.get('page') || '1');
   const limit = 6;
 
-  const [pagination, setPagination] = useState({ total: 0, limit: 6, page: 1 });
+  const [pagination, setPagination] = useState({ total: 0, limit: 6, page: page });
   const categoryData = useSelector(
     (state: IStoreState) => state.categorized[selectedCategory] ?? []
   );
@@ -59,24 +59,28 @@ export function ProductsPage({
     if (shouldFetchProducts) {
       fetch(`${url}?skip=${skip}&limit=${limit}`)
         .then((response) => response.json())
-        .then((data) => {
+        .then((data) =>  {
           //sometime page
           dispatch({
             type: 'ADD_CATEGORY_PRODUCT_PAGE',
             category: selectedCategory,
             products: data.products,
             total: data.total,
-            per_page: data.limit,
+            limit: data.limit,
             page: page,
           });
           syncPaginationData({
             total: data.total,
             limit: data.limit,
-            page: data.skip / data.limit + 1,
+            page: page,
           });
         });
     } else {
-      syncPaginationData(categoryData);
+      syncPaginationData({
+        total: categoryData.total,
+        limit: categoryData.limit,
+        page: page
+      });
     }
   }, [page, selectedCategory, dispatch, shouldFetchProducts, categoryData]);
 
@@ -112,7 +116,7 @@ export function ProductsPage({
         <Row>
           <Pagination
             onChange={(page) => doSetPageInSearchParams(page)}
-            current={pagination.page | 1}
+            current={pagination.page}
             total={pagination.total}
             showSizeChanger={false}
             defaultPageSize={pagination.limit}
