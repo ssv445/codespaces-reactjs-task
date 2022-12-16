@@ -1,26 +1,45 @@
+// Update the VARIANT arg in docker-compose.yml to pick a Node.js version
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "hostRequirements": {
-    "cpus": 4
-  },
-  "waitFor": "onCreateCommand",
-  "updateContentCommand": "npm install",
-  "postCreateCommand": "",
-  "postAttachCommand": {
-    "server": "npm start"
-  },
-  "customizations": {
-    "codespaces": {
-      "openFiles": [
-        "src/App.js"
-      ]
-    }
-  },
-  "portsAttributes": {
-    "3000": {
-      "label": "Application",
-      "onAutoForward": "openPreview"
-    }
-  },
-  "forwardPorts": [3000]
+  "name": "nodejs",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  // Set *default* container specific settings.json values on container create.
+  "settings": {},
+  // Add the IDs of extensions you want installed when the container is created.
+  "extensions": [
+	// "esbenp.prettier-vscode",
+	"christian-kohler.npm-intellisense",
+	"dbaeumer.vscode-eslint",
+	"dzannotti.vscode-babel-coloring",
+	"eg2.vscode-npm-script",
+	"formulahendry.auto-close-tag",
+	"ionutvmi.path-autocomplete",
+	"mikestead.dotenv",
+	// "octref.vetur",
+	"steoates.autoimport",
+	// "vuetifyjs.vuetify-vscode",
+	"wayou.vscode-todo-highlight",
+	"whtouche.vscode-js-console-utils",
+	"wix.vscode-import-cost",
+	"ms-vscode.live-server",
+	"formulahendry.auto-rename-tag",
+	"dunn.redis",
+	// "mongodb.mongodb-vscode",
+	"donjayamanne.githistory",
+	"arturock.gitstash"
+],
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [
+  // 	"2122:2122",
+  // 	"27017:27017",
+  // 	"8081:8081",
+  // 	"8067:8067",
+  // 	"8069:8069"
+  // ],
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "yarn install",
+  // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+  "remoteUser": "node",
+  "postCreateCommand": "sudo chown node node_modules"
 }

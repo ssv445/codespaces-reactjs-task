@@ -1,0 +1,30 @@
+# Replace example.com with your application's domain
+swachhsagar.local:80, ecomitram.local:80 {
+	log
+
+	@api  path "/api/*"
+	handle @api {
+		uri strip_prefix /api
+		reverse_proxy app:2122
+	}
+
+	@imgproxy  path "/optimg/*"
+	handle @imgproxy {
+		reverse_proxy https://emv2img-jnh84.ondigitalocean.app {
+			header_up Host emv2img-jnh84.ondigitalocean.app
+		}
+	}
+
+	@cms  path "/cms/*"
+	handle @cms {
+		uri strip_prefix /cms
+		reverse_proxy https://cms.ecomitram.app {
+			header_up Host cms.ecomitram.app
+		}
+	}
+
+	# Fallback to tenant portal
+	handle {
+		reverse_proxy app:8063
+	}
+}
